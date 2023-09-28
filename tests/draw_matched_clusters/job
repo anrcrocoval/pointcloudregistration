@@ -1,0 +1,12 @@
+#!/bin/bash
+# Script options # Optional script directives
+#$ -V
+#$ -cwd
+
+echo 'Submitting job: graph-matching NO ANGLES on heart,valve,nuclei,armadillo'
+echo $JOB_ID
+
+sh script.sh
+
+echo 'Job completed.'
+echo $JOB_ID

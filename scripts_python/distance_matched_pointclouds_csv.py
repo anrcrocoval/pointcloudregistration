@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import csv
 import sys
 import math
@@ -9,6 +11,10 @@ def get_matrix(filename):
         r = csv.reader(f)
         m = [[float(x) for x in row] for row in r]
     return m
+
+# def get_matrix(filename):
+#     m = np.loadtxt(filename, delimiter=',')
+#     return m
 
 def matrix_times_vector(m, x):
     return [sum(m_ij * x_j for m_ij, x_j in zip(m_i, x)) for m_i in m]
@@ -31,7 +37,8 @@ def compute_average_distance(filename1, filename2, transform=identity_matrix):
     if nbpoints > 0:
         return d / nbpoints
     else:
-        return 0
+        print('distance_matched_pointclouds_csv: NO POINTS IN FILE')
+        return -1
 
 def print_usage():
     print('SYNOPSIS')
@@ -46,13 +53,13 @@ def print_usage():
     print('    a fourth line equal to 0,0,0,1.')
     sys.exit(1)
 
-def main():
-    if len(sys.argv) == 3:
-        print(compute_average_distance(sys.argv[1], sys.argv[2]))
-    elif (len(sys.argv) == 4):
-        print(compute_average_distance(sys.argv[2], sys.argv[3], get_matrix(sys.argv[1])))
+def main(argv):
+    if len(argv) == 3:
+        print(compute_average_distance(argv[1], argv[2]))
+    elif (len(argv) == 4):
+        print(compute_average_distance(argv[2], argv[3], get_matrix(argv[1])))
     else:
         print_usage()
 
 if __name__=='__main__':
-    main()
+    main(sys.argv)

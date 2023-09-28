@@ -125,3 +125,14 @@ int setParams(int argc, char const *const *argv, struct Params *params)
 
   return (0);
 }
+
+
+
+float Params::get_seed_resolution(void) const
+{
+  return seed_resolution;
+}
+float Params::get_voxel_resolution(void) const
+{
+  return voxel_resolution;
+}

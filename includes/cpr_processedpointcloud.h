@@ -12,13 +12,15 @@ class ProcessedPointCloud
 {
 private:
   Params params;
-  PointCloudT::Ptr cloud;
-  pcl::SupervoxelClustering<PointT> super;
+  //PointCloudT::Ptr cloud;
   int nbVertices;
-  SupervoxelClusters supervoxel_clusters;
+  //SupervoxelClusters supervoxel_clusters;
   SupervoxelAdjacency supervoxel_adjacency;
 
 public:
+  PointCloudT::Ptr cloud; //shouldnt be public; debug
+  pcl::SupervoxelClustering<PointT> super;
+  SupervoxelClusters supervoxel_clusters; // public for tests/draw_matched_clusters/main_test.cpp
   ESFDescriptors esf_descriptors;
   EdgeDescriptors edge_descriptors;
   MatrixInt adjacency_matrix;
@@ -40,7 +42,11 @@ public:
   void addSomeColours(pcl::visualization::PCLVisualizer::Ptr viewer, std::vector<KeyT> nodes);
 
   int getNbVertices() const;
-  std::vector<std::tuple<double,double,double>> exportPointCloud(void) const;
+  std::vector<std::tuple<double,double,double>> exportCentroidPointCloud_as_vector(void) const;
+  pcl::PointCloud<pcl::PointXYZ>::Ptr exportCentroidPointCloud_as_pcl(void) const;
+
+  float get_seed_resolution(void) const;
+  float get_voxel_resolution(void) const;
 };
 
 #endif /* __DEF_CPR_PROCESSEDPOINTCLOUD_H__ */

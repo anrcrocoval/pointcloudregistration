@@ -6,6 +6,8 @@
 #include "cpr_visualisation.h"
 #include "cpr_processedpointcloud.h"
 
+#include "cpr_debug_supervoxel.h"
+
 ProcessedPointCloud::ProcessedPointCloud(Params const &p)
   : params(p), cloud(new PointCloudT), super (params.voxel_resolution, params.seed_resolution)
 {
@@ -26,6 +28,9 @@ int ProcessedPointCloud::build(void)
   int error_loading_file = loadFile(); //(argv[1], params.is_pcd, cloud);
   if (error_loading_file)
     return (error_loading_file);
+
+  //cprdbg::supervoxel::print_pointcloud(cloud, 2);
+
 
   buildGraph();
 
@@ -63,7 +68,7 @@ void ProcessedPointCloud::buildGraph(void)
   nbVertices = supervoxel_clusters.size();
   adjacency_matrix.resize(nbVertices,nbVertices);
   buildAdjacencyMatrix(supervoxel_adjacency, adjacency_matrix);
-  printMatrixToFile(params.adjacency_filename.c_str(), adjacency_matrix);
+  //printMatrixToFile(params.adjacency_filename.c_str(), adjacency_matrix);
 }
 
 void ProcessedPointCloud::buildFeatures(void)
@@ -75,30 +80,30 @@ void ProcessedPointCloud::buildFeatures(void)
 }
 
 //pcl::visualization::PCLVisualizer::Ptr
-pcl::visualization::PCLVisualizer::Ptr ProcessedPointCloud::visualise(void)
-{
-  // maybe encapsulate this in Boost::Thread or call fork() ?
-  pcl::console::print_highlight ("Initialising visualisation\n");
-
-  pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
-  viewer->setBackgroundColor (0, 0, 0);
-
-  addToViewer(viewer);
-  //addSomeColours(viewer);
-
-  //while (!viewer->wasStopped ())
-  //{
-  //  viewer->spinOnce (100);
-  //}
-  return viewer;
-}
+// pcl::visualization::PCLVisualizer::Ptr ProcessedPointCloud::visualise(void)
+// {
+//   // maybe encapsulate this in Boost::Thread or call fork() ?
+//   pcl::console::print_highlight ("Initialising visualisation\n");
+//
+//   pcl::visualization::PCLVisualizer::Ptr viewer (new pcl::visualization::PCLVisualizer ("3D Viewer"));
+//   viewer->setBackgroundColor (0, 0, 0);
+//
+//   addToViewer(viewer);
+//   //addSomeColours(viewer);
+//
+//   //while (!viewer->wasStopped ())
+//   //{
+//   //  viewer->spinOnce (100);
+//   //}
+//   return viewer;
+// }
 
 int ProcessedPointCloud::getNbVertices(void) const
 {
   return nbVertices;
 }
 
-std::vector<std::tuple<double,double,double>> ProcessedPointCloud::exportPointCloud(void) const
+std::vector<std::tuple<double,double,double>> ProcessedPointCloud::exportCentroidPointCloud_as_vector(void) const
 {
   std::vector<std::tuple<double,double,double>> out;
   for (auto const &p : supervoxel_clusters)
@@ -107,3 +112,35 @@ std::vector<std::tuple<double,double,double>> ProcessedPointCloud::exportPointCl
   }
   return out;
 }
+
+pcl::PointCloud<pcl::PointXYZ>::Ptr ProcessedPointCloud::exportCentroidPointCloud_as_pcl(void) const
+{
+  pcl::PointCloud<pcl::PointXYZ>::Ptr out(new pcl::PointCloud<pcl::PointXYZ>);
+  for (auto const &p : supervoxel_clusters)
+  {
+    out->push_back(pcl::PointXYZ(p.second->centroid_.x, p.second->centroid_.y, p.second->centroid_.z));
+  }
+  return out;
+}
+
+
+float ProcessedPointCloud::get_seed_resolution(void) const
+{
+  return params.get_seed_resolution();
+}
+float ProcessedPointCloud::get_voxel_resolution(void) const
+{
+  return params.get_voxel_resolution();
+}
+//
+// std::vector<std::vector<std::tuple<double,double,double>>> ProcessedPointCloud::exportClusters(void) const
+// {
+//   std::vector<std::vector<std::tuple<double,double,double>>> out;
+//   for (auto const &p : supervoxel_clusters)
+//   {
+//     std::vector<std::tuple<double,double,double>> cluster = p.second->voxels_
+//     out.push_back(cluster);
+//     out.push_back(std::make_tuple<double,double,double>(p.second->centroid_.x, p.second->centroid_.y, p.second->centroid_.z));
+//   }
+//   return out;
+// }
